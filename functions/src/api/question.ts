@@ -8,7 +8,8 @@ const createQuestion = async (request: Request, response: Response) => {
     body: request.body.body,
     userId: response.locals.uid,
     uuid: uuid,
-    tags: (request.body.tags ?? [])
+    tags: (request.body.tags ?? []),
+    resolved: false
   })
   response.sendStatus(200)
 }
@@ -39,9 +40,28 @@ const getOneQuestion = async (request: Request, response: Response) => {
   response.json(data)
 }
 
+const updateQuestion = async (request: Request, response: Response) => {
+  const check = (await admin.firestore().collection('question').doc(request.params.id).get()).data()
+  if (check!.userId !== response.locals.uid) {
+    // 自分の悩みじゃない場合は編集不可
+    response.status(400).json({ message: 'not user' })
+    return
+  }
+  await admin.firestore().collection('question').doc(request.params.id).update({
+    updateAt: new Date(),
+    body: request.body.body,
+    tags: (request.body.tags ?? []),
+    resolved: (request.body.resolved ?? false)
+  }).then(_res => {
+    response.sendStatus(200)
+  }).catch(err => {
+    response.status(400).json({ message: err.message })
+  })
+}
+
 const deleteQuestion = async (request: Request, response: Response) => {
   await admin.firestore().collection("question").doc(request.params.id).delete()
   response.sendStatus(200)
 }
 
-export { createQuestion, getAllQuestion, getOneQuestion, deleteQuestion }
+export { createQuestion, getAllQuestion, getOneQuestion, updateQuestion, deleteQuestion }

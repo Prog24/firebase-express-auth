@@ -2,7 +2,7 @@ import * as express from 'express'
 
 import { createDocument, updateDocument, deleteDocument, getDocument } from './api/document'
 import { signup } from './api/user'
-import { createQuestion, getAllQuestion, getOneQuestion, deleteQuestion } from './api/question'
+import { createQuestion, getAllQuestion, getOneQuestion, updateQuestion, deleteQuestion } from './api/question'
 
 const noAuthRouter = express.Router()
 const authRouter = express.Router()
@@ -16,6 +16,7 @@ noAuthRouter.post('/api/user', signup)
 authRouter.post('/api/question', createQuestion)
 authRouter.get('/api/question', getAllQuestion)
 authRouter.get('/api/question/:id', getOneQuestion)
+authRouter.put('/api/question/:id', updateQuestion)
 authRouter.delete('/api/question/:id', deleteQuestion)
 
 export { noAuthRouter, authRouter }
