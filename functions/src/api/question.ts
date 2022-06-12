@@ -60,8 +60,17 @@ const updateQuestion = async (request: Request, response: Response) => {
 }
 
 const deleteQuestion = async (request: Request, response: Response) => {
-  await admin.firestore().collection("question").doc(request.params.id).delete()
-  response.sendStatus(200)
+  const check = (await admin.firestore().collection('question').doc(request.params.id).get()).data()
+  if (check!.userId !== response.locals.uid) {
+    // 自分の悩みじゃない場合は削除不可
+    response.status(400).json({ message: 'not user' })
+    return
+  }
+  await admin.firestore().collection("question").doc(request.params.id).delete().then(_res => {
+    response.sendStatus(200)
+  }).catch(err => {
+    response.status(400).json({ message: err.message })
+  })
 }
 
 export { createQuestion, getAllQuestion, getOneQuestion, updateQuestion, deleteQuestion }
