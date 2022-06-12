@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }))
 const verifyLogin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const jwt = req.headers["authorization"]?.split(" ")[1]
   if (jwt === undefined) {
-    console.log('1')
+    // jwtが無い時
     res.sendStatus(403)
   } else {
     try {
@@ -20,10 +20,14 @@ const verifyLogin = (req: express.Request, res: express.Response, next: express.
           res.locals.uid = user.uid
           next()
         } else {
+          // 有効期限切れ
           res.sendStatus(403)
         }
+      }).catch((_err) => {
+        res.sendStatus(403)
       })
     } catch (err) {
+      // verify Error
       res.status(403)
     }
   }

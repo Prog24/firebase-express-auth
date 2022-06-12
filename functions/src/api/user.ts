@@ -18,9 +18,16 @@ const signup = async (request: Request, response: Response) => {
   // 新規登録
   // req: UID, CTIME, UTIME
   const jwt = request.headers["authorization"]?.split(" ")[1]
-  admin.auth().verifyIdToken(jwt!).then((_res) => {
-    admin.firestore().collection("users").doc(request.body.uid).set({createdAt: new Date()})
-    response.sendStatus(200)
+  admin.auth().verifyIdToken(jwt!).then((res) => {
+    if (res.uid === request.body.uid) {
+      admin.firestore().collection("users").doc(request.body.uid).set({
+        userId: request.body.uid,
+        createdAt: new Date()
+      })
+      response.sendStatus(200)
+    } else {
+      response.status(400).json({ message: 'error' })
+    }
   }).catch((err) => {
     console.error(err)
     response.status(400).json({message: 'error'})
