@@ -17,25 +17,20 @@ const getAllQuestion = async (request: Request, response: Response) => {
   const queryMe = request.query.me
   const solved = request.query.solved
   const tags = request.query.tags
+  var baseQuery = admin.firestore().collection('question')
   if (queryMe) {
-    const snapshot = await admin.firestore().collection('question').where('userId', '==', response.locals.uid).orderBy('createAt', 'desc').get()
-    const data = snapshot.docs.map(doc => doc.data())
-    response.json(data)
-  } else if (solved) {
-    const snapshot = await admin.firestore().collection('question').where('solved', '==', true).orderBy('createAt', 'desc').get()
-    const data = snapshot.docs.map(doc => doc.data())
-    response.json(data)
-  } else if (tags) {
-    const tagsArray = Array.isArray(tags) ? tags : Array(tags)
-    console.log(tagsArray)
-    const snapshot = await admin.firestore().collection('question').where('tags', 'array-contains-any', tagsArray).orderBy('createAt', 'desc').get()
-    const data = snapshot.docs.map(doc => doc.data())
-    response.json(data)
-  } else {
-    const snapshot = await admin.firestore().collection('question').orderBy('createAt', 'desc').get()
-    const data = snapshot.docs.map(doc => doc.data())
-    response.json(data)
+    baseQuery = baseQuery.where('userId', '==', response.locals.uid) as any
   }
+  if (solved) {
+    baseQuery = baseQuery.where('solved', '==', true) as any
+  }
+  if (tags) {
+    const tagsArray = Array.isArray(tags) ? tags : Array(tags)
+    baseQuery = baseQuery.where('tags', 'array-contains-any', tagsArray) as any
+  }
+  const snapshot = await baseQuery.orderBy('createAt', 'desc').get()
+  const data = snapshot.docs.map(doc => doc.data())
+  response.json(data)
 }
 
 const getOneQuestion = async (request: Request, response: Response) => {
