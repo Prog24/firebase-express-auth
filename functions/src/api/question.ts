@@ -16,14 +16,14 @@ const createQuestion = async (request: Request, response: Response) => {
 
 const getAllQuestion = async (request: Request, response: Response) => {
   const queryMe = request.query.me
-  const solved = request.query.solved
+  const resolved = request.query.resolved
   const tags = request.query.tags
   var baseQuery = admin.firestore().collection('question')
   if (queryMe) {
     baseQuery = baseQuery.where('userId', '==', response.locals.uid) as any
   }
-  if (solved) {
-    baseQuery = baseQuery.where('solved', '==', true) as any
+  if (resolved) {
+    baseQuery = baseQuery.where('resolved', '==', resolved) as any
   }
   if (tags) {
     const tagsArray = Array.isArray(tags) ? tags : Array(tags)
